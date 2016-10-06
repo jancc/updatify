@@ -32,6 +32,7 @@ def generateTree(treeroot):
 	
 def downloadTree(url):
 	tree = []
+	url = "http://" + urllib.parse.quote(url)
 	with urllib.request.urlopen(url) as www:
 		content = www.read().decode('utf-8')
 	lines = content.splitlines()

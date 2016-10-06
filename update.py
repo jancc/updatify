@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import filetree
 import os
 import urllib
@@ -7,6 +8,7 @@ def downloadFile(url, filename):
 	print("downloading " + filename + " from " + url)
 	if os.path.dirname(filename) != "":
 		os.makedirs(os.path.dirname(filename), exist_ok=True)
+	url = "http://" + urllib.parse.quote(url)
 	with urllib.request.urlopen(url) as www:
 		content = www.read()
 	file = open(filename, "wb")
@@ -33,7 +35,7 @@ def update(argv):
 		print("please specify a root directory using -r")
 		sys.exit(2)
 
-	remoteRootdir = "http://update.jancc.de/" + game + "/" + version + "/" + arch + "/";
+	remoteRootdir = "update.jancc.de/" + game + "/" + version + "/" + arch + "/";
 	
 	if not os.path.isdir(rootdir):
 		os.makedirs(rootdir)
@@ -41,7 +43,7 @@ def update(argv):
 	os.chdir(rootdir)
 	
 	redownload = []
-	tree = filetree.downloadTree("http://update.jancc.de/" + game + "/" + version + "/" + arch + "/tree.txt")
+	tree = filetree.downloadTree(remoteRootdir + "tree.txt")
 	for file in tree:
 		if not os.path.isfile(file.filename):
 			redownload.append(file.filename)
