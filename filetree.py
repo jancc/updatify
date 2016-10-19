@@ -29,12 +29,9 @@ def generateTree(treeroot):
 			hash = hashFile(filename)
 			tree.append(TreeFile(filename, hash))
 	return tree
-	
-def downloadTree(url):
+
+def parseTree(content):
 	tree = []
-	url = "http://" + urllib.parse.quote(url)
-	with urllib.request.urlopen(url) as www:
-		content = www.read().decode('utf-8')
 	lines = content.splitlines()
 	for line in lines:
 		filedata = line.split(":", 1)
@@ -42,3 +39,39 @@ def downloadTree(url):
 			file = TreeFile(filedata[0].strip(), filedata[1].strip())
 			tree.append(file)
 	return tree
+	
+def downloadTree(url):
+	url = "http://" + urllib.parse.quote(url)
+	with urllib.request.urlopen(url) as www:
+		content = www.read().decode('utf-8')
+	return parseTree(content)
+
+def readTree(filename):
+	if not os.path.isfile(filename):
+		return []
+	file = open(filename, "r")
+	content = file.read()
+	return parseTree(content)
+
+def writeTree(tree, filename):
+	out = open(filename, "w")
+	for file in tree:
+		out.write(file.filename + ":" + file.hash + "\n")
+		
+def treeContainsFile(tree, filename):
+	for file in tree:
+		if file.filename == filename:
+			return True
+	return False
+	
+def treeContainsHash(tree, hash):
+	for file in tree:
+		if file.hash == hash:
+			return True
+	return False
+
+def treeGetFileHash(tree, filename):
+	for file in tree:
+		if file.filename == filename:
+			return file.hash
+	return ""

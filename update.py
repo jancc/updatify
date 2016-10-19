@@ -14,6 +14,19 @@ def downloadFile(url, filename):
 	file = open(filename, "wb")
 	file.write(content)
 
+def removeFile(filename):
+	print("removing " + filename)
+	os.remove(filename)
+	dir = os.path.dirname(filename)
+	dirEmpty = False
+	try:
+		os.rmdir(dir)
+		dirEmpty = True
+	except OSError as ex:
+		dirEmpty = False
+	if dirEmpty:
+		print("removing " + dir)
+
 def update(argv):
 	rootdir = ""
 	arch = ""
@@ -43,7 +56,10 @@ def update(argv):
 	os.chdir(rootdir)
 	
 	redownload = []
+	remove = []
 	tree = filetree.downloadTree(remoteRootdir + "tree.txt")
+	localTree = filetree.readTree("tree.txt")
+	
 	for file in tree:
 		if not os.path.isfile(file.filename):
 			redownload.append(file.filename)
@@ -52,11 +68,22 @@ def update(argv):
 		hash = filetree.hashFile(file.filename)
 		if hash != file.hash:
 			redownload.append(file.filename)
+	
+	for file in localTree:
+		# any file that still has it's original hash, but is not part of the remote tree will be deleted
+		if filetree.hashFile(file.filename) == filetree.treeGetFileHash(localTree, file.filename) and not filetree.treeContainsFile(tree, file.filename):
+			remove.append(file.filename)
+			continue
 			
 	if len(redownload) == 0:
 		print("no updates needed")
 	
 	for file in redownload:
 		downloadFile(remoteRootdir + file, file)
+		
+	for file in remove:
+		removeFile(file)
+		
+	filetree.writeTree(tree, "tree.txt")
 
 update(sys.argv)

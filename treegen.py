@@ -17,8 +17,6 @@ def treegen(argv):
 	
 	os.chdir(rootdir)
 	tree = filetree.generateTree(".")
-	out = open("tree.txt", "w")
-	for file in tree:
-		out.write(file.filename + ":" + file.hash + "\n")
+	filetree.writeTree(tree, "tree.txt")
 
 treegen(sys.argv)
