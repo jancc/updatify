@@ -85,6 +85,10 @@ def treeGetFileHash(tree, filename):
 #Treegen
 
 def treegen(rootdir):
+	if rootdir == "":
+		print("please specify a root directory")
+		sys.exit(2)
+
 	os.chdir(rootdir)
 	tree = generateTree(".")
 	writeTree(tree, "tree.txt")
@@ -116,6 +120,9 @@ def removeFile(filename):
 
 def update(rootdir, game, arch, version):
 	remoteRootdir = "update.jancc.de/" + game + "/" + version + "/" + arch + "/";
+	
+	if rootdir == "":
+		rootdir = game;
 	
 	if not os.path.isdir(rootdir):
 		os.makedirs(rootdir)
@@ -163,8 +170,6 @@ def updatify(argv):
 	version = "latest"
 	
 	for i, arg in enumerate(argv):
-		if(i == 1):
-			command = arg
 		if i < len(argv) - 1:
 			if arg == "-r" or arg == "--root":
 				rootdir = argv[i + 1]
@@ -174,18 +179,22 @@ def updatify(argv):
 				arch = argv[i + 1]
 			elif arg == "-v" or arg == "--version":
 				version = argv[i + 1]
+			elif arg == "-c" or arg == "--command":
+				command = argv[i + 1]
 	
 	if command == "":
 		print("please specify a command (update or treegen)")
+		sys.exit(2)
+	elif arch == "":
+		print("please specify your architecture")
+		sys.exit(2)
+	elif game == "":
+		print("please specify a game")
 		sys.exit(2)
 	elif command == "update":
 		update(rootdir, game, arch, version)
 	elif command == "treegen":
 		treegen(rootdir)
-	
-	if rootdir == "" or arch == "" or game == "":
-		print("please specify a root directory using -r")
-		sys.exit(2)
 	
 	
 updatify(sys.argv)
